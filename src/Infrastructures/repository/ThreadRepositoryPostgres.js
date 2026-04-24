@@ -40,7 +40,9 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       replies.id AS reply_id,
       replies.content AS reply_content,
       replies.created_at AS reply_date,
-      ru.username AS reply_username
+      ru.username AS reply_username,
+
+      COUNT(DISTINCT comment_likes.owner) AS like_count
 
       FROM threads 
       INNER JOIN users tu ON threads.owner = tu.id
@@ -48,8 +50,15 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       LEFT JOIN users cu ON comments.owner = cu.id
       LEFT JOIN comments replies ON comments.id = replies.parent_id
       LEFT JOIN users ru ON replies.owner = ru.id
+      LEFT JOIN comment_likes ON comments.id = comment_likes.comment_id
 
       WHERE threads.id = $1
+
+      GROUP BY 
+      threads.id, tu.username,
+      comments.id, cu.username,
+      replies.id, ru.username
+
       ORDER BY comments.created_at, replies.created_at ASC`,
       values: [id],
     };

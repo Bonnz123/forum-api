@@ -21,6 +21,8 @@ import CommentRepository from '../Domains/comments/CommentRepository.js';
 import CommentRepositoryPostgres from './repository/CommentRepositoryPostgres.js';
 import ReplyRepository from '../Domains/replies/ReplyRepository.js';
 import ReplyRepositoryPostgres from './repository/ReplyRepositoryPostgres.js';
+import CommentLikeRepository from '../Domains/commentLikes/CommentLikeRepository.js';
+import CommentLikeRepositoryPostgres from './repository/CommentLikeRepositoryPostgres.js';
 
 // use case
 import AddUserUseCase from '../Applications/use_case/AddUserUseCase.js';
@@ -35,6 +37,7 @@ import GetThreadDetailsUseCase from '../Applications/use_case/GetThreadDetailsUs
 import DeleteCommentUseCase from '../Applications/use_case/DeleteCommentUseCase.js';
 import AddReplyUseCase from '../Applications/use_case/AddReplyUseCase.js';
 import DeleteReplyUseCase from '../Applications/use_case/DeleteReplyUseCase.js';
+import ToggleLikeCommentUseCase from '../Applications/use_case/ToggleLikeCommentUseCase.js';
 
 // creating container
 const container = createContainer();
@@ -90,6 +93,17 @@ container.register([
         },
         {
           concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: CommentLikeRepository.name,
+    Class: CommentLikeRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
         },
       ],
     },
@@ -267,6 +281,27 @@ container.register([
     },
   },
   {
+    key: ToggleLikeCommentUseCase.name,
+    Class: ToggleLikeCommentUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'threadRepository',
+          internal: ThreadRepository.name,
+        },
+        {
+          name: 'commentRepository',
+          internal: CommentRepository.name,
+        },
+        {
+          name: 'commentLikeRepository',
+          internal: CommentLikeRepository.name,
+        },
+      ],
+    },
+  },
+  {
     key: AddReplyUseCase.name,
     Class: AddReplyUseCase,
     parameter: {
@@ -307,7 +342,7 @@ container.register([
         },
       ],
     },
-  }
+  },
 ]);
 
 export default container;
