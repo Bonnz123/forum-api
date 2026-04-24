@@ -1,0 +1,41 @@
+{
+  "name": "forum-api",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "start:dev": "nodemon src/app.js",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "migrate": "node-pg-migrate",
+    "migrate:test": "node-pg-migrate --envPath .env.test",
+    "lint": "eslint ./"
+  },
+  "keywords": [],
+  "author": "farisderz",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.0",
+    "express": "^5.2.1",
+    "instances-container": "^2.0.6",
+    "jsonwebtoken": "^9.0.3",
+    "nanoid": "^5.1.7",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/eslint-plugin": "^1.6.14",
+    "eslint": "^10.2.0",
+    "eslint-config-dicodingacademy": "^0.9.5",
+    "globals": "^17.4.0",
+    "node-pg-migrate": "^8.0.4",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.2"
+  }
+}
