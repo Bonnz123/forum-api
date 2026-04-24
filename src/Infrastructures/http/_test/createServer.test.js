@@ -523,6 +523,10 @@ describe('HTTP server', () => {
       const { id: commentId } = commentResponse.body.data.addedComment;
 
       await request(app)
+        .put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      await request(app)
         .post(`/threads/${threadId}/comments/${commentId}/replies`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
