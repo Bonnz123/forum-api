@@ -29,6 +29,7 @@ class GetThreadDetailsUseCase {
             content: row.comment_content,
             date: row.comment_date,
             username: row.comment_username,
+            likeCount: Number(row.like_count) || 0,
             replies: [],
           };
 

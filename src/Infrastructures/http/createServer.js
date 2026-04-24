@@ -6,6 +6,7 @@ import threads from '../../Interfaces/http/api/threads/index.js';
 import comments from '../../Interfaces/http/api/comments/index.js';
 import replies from '../../Interfaces/http/api/replies/index.js';
 import { notFoundMiddleware } from '../../Interfaces/http/middleware/notFoundMiddlewate.js';
+import commentLikes from '../../Interfaces/http/api/commentLikes/index.js';
 
 const createServer = async (container) => {
   const app = express();
@@ -20,6 +21,7 @@ const createServer = async (container) => {
   // Api
   app.use('/threads', threads(container));
   app.use('/threads/:threadId/comments', comments(container)),
+  app.use('/threads/:threadId/comments/:commentId/likes', commentLikes(container)),
   app.use('/threads/:threadId/comments/:commentId/replies', replies(container)),
 
   // 404 handler

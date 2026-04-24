@@ -21,6 +21,7 @@ describe('GetThreadDetailsUseCase', () => {
         reply_content: 'Sebuah balasan',
         reply_date: '2026-04-16T05:29:42.602Z',
         reply_username: 'dicoding',
+        like_count: 2,
       },
       {
         thread_id: 'thread-123',
@@ -36,6 +37,7 @@ describe('GetThreadDetailsUseCase', () => {
         reply_content: 'Sebuah balasan2',
         reply_date: '2026-04-16T05:29:42.612Z',
         reply_username: 'dicoding2',
+        like_count: 2,
       },
     ];
 
@@ -51,6 +53,7 @@ describe('GetThreadDetailsUseCase', () => {
           content: 'Sebuah komentar',
           date: '2026-04-16T05:29:42.581Z',
           username: 'dicoding',
+          likeCount: 2,
           replies: [
             {
               id: 'reply-123',

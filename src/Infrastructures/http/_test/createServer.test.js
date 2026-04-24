@@ -7,8 +7,8 @@ import createServer from '../createServer.js';
 import AuthenticationTokenManager from '../../../Applications/security/AuthenticationTokenManager.js';
 import ThreadTableTestHelper from '../../../../tests/ThreadsTableTestHelper.js';
 import CommentTableTestHelper from '../../../../tests/CommentsTableTestHelper.js';
-import { describe, expect, it } from 'vitest';
 import RepliesTableTestHelper from '../../../../tests/RepliesTableTestHelper.js';
+import CommentLikesTableTestHelper from '../../../../tests/CommentLikesTableTestHelper.js';
 
 describe('HTTP server', () => {
   afterAll(async () => {
@@ -20,6 +20,7 @@ describe('HTTP server', () => {
     await AuthenticationsTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
     await CommentTableTestHelper.cleanTable();
+    await CommentLikesTableTestHelper.cleanTable();
     await RepliesTableTestHelper.cleanTable();
   });
 
@@ -522,6 +523,10 @@ describe('HTTP server', () => {
       const { id: commentId } = commentResponse.body.data.addedComment;
 
       await request(app)
+        .put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      await request(app)
         .post(`/threads/${threadId}/comments/${commentId}/replies`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
@@ -843,6 +848,148 @@ describe('HTTP server', () => {
       expect(response.body.message).toEqual(
         'anda tidak berhak mengakses resource ini',
       );
+    });
+  });
+
+  describe('when PUT /comments/:commentId/likes', () => {
+    it('should response 200 and like the comment', async () => {
+      // Arrange
+      const app = await createServer(container);
+
+      await request(app).post('/users').send({
+        username: 'dicoding',
+        password: 'secret',
+        fullname: 'Dicoding Indonesia',
+      });
+
+      const loginResponse = await request(app).post('/authentications').send({
+        username: 'dicoding',
+        password: 'secret',
+      });
+
+      const { accessToken } = loginResponse.body.data;
+      const threadResponse = await request(app)
+        .post('/threads')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          title: 'Sebuah thread',
+          body: 'Isi dari sebuah thread',
+        });
+
+      const { id: threadId } = threadResponse.body.data.addedThread;
+
+      const commentResponse = await request(app)
+        .post(`/threads/${threadId}/comments`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          content: 'Sebuah komentar',
+        });
+
+      const { id: commentId } = commentResponse.body.data.addedComment;
+
+      // Action
+      const response = await request(app)
+        .put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      // Assert
+      expect(response.status).toEqual(200);
+      expect(response.body.status).toEqual('success');
+    });
+
+    it('should response 200 and unlike the comment', async () => {
+      // Arrange
+      const app = await createServer(container);
+
+      await request(app).post('/users').send({
+        username: 'dicoding',
+        password: 'secret',
+        fullname: 'Dicoding Indonesia',
+      });
+
+      const loginResponse = await request(app).post('/authentications').send({
+        username: 'dicoding',
+        password: 'secret',
+      });
+
+      const { accessToken } = loginResponse.body.data;
+      const threadResponse = await request(app)
+        .post('/threads')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          title: 'Sebuah thread',
+          body: 'Isi dari sebuah thread',
+        });
+
+      const { id: threadId } = threadResponse.body.data.addedThread;
+
+      const commentResponse = await request(app)
+        .post(`/threads/${threadId}/comments`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          content: 'Sebuah komentar',
+        });
+
+      const { id: commentId } = commentResponse.body.data.addedComment;
+
+      await request(app)
+        .put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      // Action
+      const response = await request(app)
+        .put(`/threads/${threadId}/comments/${commentId}/likes`)
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      // Assert
+      expect(response.status).toEqual(200);
+      expect(response.body.status).toEqual('success');
+    });
+
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      const app = await createServer(container);
+
+      const accessToken = await container
+        .getInstance(AuthenticationTokenManager.name)
+        .createAccessToken({ id: 'user-123', username: 'dicoding' });
+
+      // Action
+      const response = await request(app)
+        .put('/threads/thread-123/comments/comment-123/likes')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      // Assert
+      expect(response.status).toEqual(404);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('thread tidak ditemukan');
+    });
+
+    it('should response 404 when comment not found', async () => {
+      // Arrange
+      const app = await createServer(container);
+
+      await UsersTableTestHelper.addUser({
+        id: 'user-123',
+      });
+
+      const accessToken = await container
+        .getInstance(AuthenticationTokenManager.name)
+        .createAccessToken({ id: 'user-123', username: 'dicoding' });
+
+      await ThreadTableTestHelper.addThread({
+        id: 'thread-123',
+      });
+
+      // Action
+      const response = await request(app)
+        .put('/threads/thread-123/comments/comment-123/likes')
+        .set('Authorization', `Bearer ${accessToken}`);
+
+      // Assert
+      expect(response.status).toEqual(404);
+      expect(response.body.status).toEqual('fail');
+      expect(response.body.message).toEqual('comment tidak ditemukan');
     });
   });
 
